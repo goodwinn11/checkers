@@ -9,6 +9,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import java.util.Optional;
 
+import static au.edu.sydney.soft3202.task3.model.SQLDataBase.addDataFromQuestionableSource;
+import static au.edu.sydney.soft3202.task3.model.SQLDataBase.db_id;
+
 /**
  * This is the overall window scene for the application. It creates and contains the different elements in the
  * top, bottom, center, and right side of the window, along with linking them to the model.
@@ -133,12 +136,27 @@ public class GameWindow {
             return;
         }
 
-        String serialisation = model.serialise();
 
-        TextInputDialog textInput = new TextInputDialog(serialisation);
+        TextInputDialog textInput = new TextInputDialog();
         textInput.setTitle("Save game");
         textInput.setHeaderText("Set your game name");
-        textInput.showAndWait();
+        Optional<String> input = textInput.showAndWait();
+        if (input.isPresent()) {
+            String user = input.get();
+
+            try {
+                String serialisation = model.serialise();
+                addDataFromQuestionableSource(user, serialisation);
+
+            } catch (IllegalArgumentException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Serialisation Error");
+                alert.setHeaderText(e.getMessage());
+
+                alert.showAndWait();
+                return;
+            }
+        }
     }
 
     private void deserialiseAction() {

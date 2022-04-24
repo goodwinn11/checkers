@@ -18,7 +18,14 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setScene(view.getScene());
         SQLDataBase chess = new SQLDataBase();
-        chess.initDB();
+        chess.removeDB();
+       chess.createDB();
+       chess.setupDB();
+       chess.addStartingData();
+//        addDataFromQuestionableSource("2", "none", "1,2,3,4");
+      //  chess.createDB();
+    //    SQLDataBase.setupDB();
+       // SQLDataBase.addStartingData();
         primaryStage.setTitle("Checkers");
         primaryStage.show();
     }
