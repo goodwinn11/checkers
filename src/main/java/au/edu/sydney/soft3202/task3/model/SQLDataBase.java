@@ -6,9 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SQLDataBase {
-    private static final String dbName = "test.db";
+    private static final String dbName = "checkers.db";
     private static final String dbURL = "jdbc:sqlite:" + dbName;
-    public static int db_id = 1;
+    public static int savedGameId = 1;
+    public static int UserNameId = 1;
 
     public static void createDB() {
         File dbFile = new File(dbName);
@@ -46,7 +47,12 @@ public class SQLDataBase {
                         CREATE TABLE IF NOT EXISTS saved_games (
                             id integer PRIMARY KEY,
                             name text NOT NULL,
-                            game_state text NOT NULL
+                            game_state text NOT NULL,
+                            user_id integer 
+                        );
+                        CREATE TABLE IF NOT EXISTS user_names (
+                            id integer PRIMARY KEY,
+                            user_name text NOT NULL,
                         );
                         """;
 
@@ -68,7 +74,7 @@ public class SQLDataBase {
                             (1, "noname", "sdfsdfsdfsdf")
                            
                         """;
-        db_id ++;
+        savedGameId++;
 
 
         try (Connection conn = DriverManager.getConnection(dbURL);
@@ -92,11 +98,11 @@ public class SQLDataBase {
 
         try (Connection conn = DriverManager.getConnection(dbURL);
              PreparedStatement preparedStatement = conn.prepareStatement(addSingleStudentWithParametersSQL)) {
-            preparedStatement.setInt(1, db_id);
+            preparedStatement.setInt(1, savedGameId);
             preparedStatement.setString(2, name);
             preparedStatement.setString(3, game_state);
             preparedStatement.executeUpdate();
-            db_id++;
+            savedGameId++;
 
             System.out.println("Added questionable data");
         } catch (SQLException e) {
