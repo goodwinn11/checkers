@@ -1,9 +1,9 @@
 package au.edu.sydney.soft3202.task3.model;
 
-import org.w3c.dom.ls.LSOutput;
-
 import java.io.File;
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SQLDataBase {
     private static final String dbName = "test.db";
@@ -43,9 +43,9 @@ public class SQLDataBase {
     public static void setupDB() {
         String createUsersTableSQL =
                 """
-                        CREATE TABLE IF NOT EXISTS users (
+                        CREATE TABLE IF NOT EXISTS saved_games (
                             id integer PRIMARY KEY,
-                            users text NOT NULL,
+                            name text NOT NULL,
                             game_state text NOT NULL
                         );
                         """;
@@ -64,7 +64,7 @@ public class SQLDataBase {
     public static void addStartingData() {
         String addUsersDataSQL =
                 """
-                        INSERT INTO users(id, users, game_state) VALUES
+                        INSERT INTO saved_games(id, name, game_state) VALUES
                             (1, "noname", "sdfsdfsdfsdf")
                            
                         """;
@@ -83,17 +83,17 @@ public class SQLDataBase {
         }
     }
 
-    public static void addDataFromQuestionableSource(String users, String game_state) {
+    public static void addDataFromQuestionableSource(String name, String game_state) {
         String addSingleStudentWithParametersSQL =
                 """
-                        INSERT INTO users(id, users, game_state) VALUES
+                        INSERT INTO saved_games(id, name, game_state) VALUES
                             (?, ?, ?)
                         """;
 
         try (Connection conn = DriverManager.getConnection(dbURL);
              PreparedStatement preparedStatement = conn.prepareStatement(addSingleStudentWithParametersSQL)) {
             preparedStatement.setInt(1, db_id);
-            preparedStatement.setString(2, users);
+            preparedStatement.setString(2, name);
             preparedStatement.setString(3, game_state);
             preparedStatement.executeUpdate();
             db_id++;
@@ -104,33 +104,36 @@ public class SQLDataBase {
             System.exit(-1);
         }
     }
+    public static Map<String, String> getAllSavedGames() {
+        Map<String, String> usersList = new HashMap<String, String>();
+        String resultString =
+                """
+                SELECT *
+                FROM saved_games
+                """;
+
+        try (Connection conn = DriverManager.getConnection(dbURL);
+             PreparedStatement preparedStatement = conn.prepareStatement(resultString)) {
+            ResultSet results = preparedStatement.executeQuery();
+            int i = 0;
+            while (results.next()) {
+                usersList.put(results.getString("name"),results.getString("game_state"));
+            }
+
+            System.out.println("Finished simple query");
+            for (String key : usersList.keySet()){
+                System.out.println("key " + key + "serial" + usersList.get(key));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            System.exit(-1);
+        }
+    return usersList;
+    }
+
+
 }
 
-//    public static void queryDataSimple(double minWAM, double maxWAM) {
-//        String studentRangeSQL =
-//                """
-//                SELECT first_name, last_name
-//                FROM students WHERE wam > ? AND wam < ?
-//                """;
-//
-//        try (Connection conn = DriverManager.getConnection(dbURL);
-//             PreparedStatement preparedStatement = conn.prepareStatement(studentRangeSQL)) {
-//            preparedStatement.setDouble(1, minWAM);
-//            preparedStatement.setDouble(2, maxWAM);
-//            ResultSet results = preparedStatement.executeQuery();
-//
-//            while (results.next()) {
-//                System.out.println(
-//                        results.getString("first_name") + " " +
-//                                results.getString("last_name"));
-//            }
-//
-//            System.out.println("Finished simple query");
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//            System.exit(-1);
-//        }
-//    }
 
 //    public static void queryDataWithJoin(String uos) {
 //        String enrolmentSQL =

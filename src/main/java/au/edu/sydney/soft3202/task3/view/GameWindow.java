@@ -7,10 +7,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import java.util.Optional;
 
-import static au.edu.sydney.soft3202.task3.model.SQLDataBase.addDataFromQuestionableSource;
-import static au.edu.sydney.soft3202.task3.model.SQLDataBase.db_id;
+import java.util.*;
+
+import static au.edu.sydney.soft3202.task3.model.SQLDataBase.*;
 
 /**
  * This is the overall window scene for the application. It creates and contains the different elements in the
@@ -90,10 +90,10 @@ public class GameWindow {
         MenuItem newGameItm = new MenuItem("New Game");
         newGameItm.setOnAction((event)-> newGameAction());
 
-        MenuItem serialiseItm = new MenuItem("Serialise");
+        MenuItem serialiseItm = new MenuItem("Save Game");
         serialiseItm.setOnAction((event)-> serialiseAction());
 
-        MenuItem deserialiseItm = new MenuItem("Deserialise");
+        MenuItem deserialiseItm = new MenuItem("Load Game");
         deserialiseItm.setOnAction((event)-> deserialiseAction());
 
         actionMenu.getItems().addAll(newGameItm, serialiseItm, deserialiseItm);
@@ -163,13 +163,18 @@ public class GameWindow {
         // Here we take an existing serialisation string and feed it back into the model to retrieve that state.
         // We don't do any validation here, as that would leak model knowledge into the view.
 
-        TextInputDialog textInput = new TextInputDialog("");
-        textInput.setTitle("Serialisation");
-        textInput.setHeaderText("Enter your serialisation string:");
+        Map<String, String> allUsers = getAllSavedGames();
+        List<String> listOfUsers = new ArrayList<>();
+        for (String key : allUsers.keySet()){
+            listOfUsers.add(key);
+        }
+        ChoiceDialog choiceDialog = new ChoiceDialog(listOfUsers.get(0),listOfUsers);
+        choiceDialog.setTitle("Serialisation");
+        choiceDialog.setHeaderText("Choose saved game:");
 
-        Optional<String> input = textInput.showAndWait();
-        if (input.isPresent()) {
-            String serialisation = input.get();
+        Optional<String> choice = choiceDialog.showAndWait();
+        if (choice.isPresent()) {
+            String serialisation = allUsers.get(choice.get());
 
             try {
                 model.deserialise(serialisation);
