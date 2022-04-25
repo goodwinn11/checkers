@@ -8,8 +8,8 @@ import java.util.Map;
 public class SQLDataBase {
     private static final String dbName = "checkers.db";
     private static final String dbURL = "jdbc:sqlite:" + dbName;
-    public static int savedGameId = 1;
-    public static int UserNameId = 1;
+    public static int savedGameId = 0;
+    public static int userNameId = 0;
 
     public static void createDB() {
         File dbFile = new File(dbName);
@@ -42,24 +42,30 @@ public class SQLDataBase {
     }
 
     public static void setupDB() {
+        String createUsersTableSQL2 =
+                """
+                        CREATE TABLE IF NOT EXISTS user_names (
+                            id integer PRIMARY KEY,
+                            user_name text NOT NULL
+                        );
+                        """;
         String createUsersTableSQL =
                 """
                         CREATE TABLE IF NOT EXISTS saved_games (
                             id integer PRIMARY KEY,
                             name text NOT NULL,
                             game_state text NOT NULL,
-                            user_id integer 
+                            user_id integer NOT NULL,
+                            FOREIGN KEY (user_id) REFERENCES user_names (id) 
                         );
-                        CREATE TABLE IF NOT EXISTS user_names (
-                            id integer PRIMARY KEY,
-                            user_name text NOT NULL,
-                        );
+                        
                         """;
 
 
         try (Connection conn = DriverManager.getConnection(dbURL);
              Statement statement = conn.createStatement()) {
             statement.execute(createUsersTableSQL);
+            statement.execute(createUsersTableSQL2);
             System.out.println("Created tables");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -70,8 +76,8 @@ public class SQLDataBase {
     public static void addStartingData() {
         String addUsersDataSQL =
                 """
-                        INSERT INTO saved_games(id, name, game_state) VALUES
-                            (1, "noname", "sdfsdfsdfsdf")
+                        INSERT INTO user_names(id, user_name) VALUES
+                            (1, "noname")
                            
                         """;
         savedGameId++;
@@ -89,20 +95,41 @@ public class SQLDataBase {
         }
     }
 
-    public static void addDataFromQuestionableSource(String name, String game_state) {
-        String addSingleStudentWithParametersSQL =
+    public static void addDataSavedGame(String name, String game_state) {
+        String addDataToSQL =
                 """
-                        INSERT INTO saved_games(id, name, game_state) VALUES
-                            (?, ?, ?)
+                        INSERT INTO saved_games(id, name, game_state, user_id) VALUES
+                            (?, ?, ?, ?)
                         """;
 
         try (Connection conn = DriverManager.getConnection(dbURL);
-             PreparedStatement preparedStatement = conn.prepareStatement(addSingleStudentWithParametersSQL)) {
-            preparedStatement.setInt(1, savedGameId);
+             PreparedStatement preparedStatement = conn.prepareStatement(addDataToSQL)) {
+            preparedStatement.setInt(1, ++savedGameId);
             preparedStatement.setString(2, name);
             preparedStatement.setString(3, game_state);
+            preparedStatement.setInt(4, userNameId);
             preparedStatement.executeUpdate();
-            savedGameId++;
+
+
+            System.out.println("Added questionable data");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            System.exit(-1);
+        }
+    }
+    public static void addDataUserName(String name) {
+        String addDataToSQL =
+                """
+                        INSERT INTO user_names(id, user_name) VALUES
+                            (?, ?)
+                        """;
+
+        try (Connection conn = DriverManager.getConnection(dbURL);
+             PreparedStatement preparedStatement = conn.prepareStatement(addDataToSQL)) {
+            preparedStatement.setInt(1, ++userNameId);
+            preparedStatement.setString(2, name);
+            preparedStatement.executeUpdate();
+
 
             System.out.println("Added questionable data");
         } catch (SQLException e) {
@@ -116,10 +143,12 @@ public class SQLDataBase {
                 """
                 SELECT *
                 FROM saved_games
+                WHERE user_id = (?)
                 """;
 
         try (Connection conn = DriverManager.getConnection(dbURL);
              PreparedStatement preparedStatement = conn.prepareStatement(resultString)) {
+            preparedStatement.setInt(1, userNameId);
             ResultSet results = preparedStatement.executeQuery();
             int i = 0;
             while (results.next()) {
@@ -127,9 +156,7 @@ public class SQLDataBase {
             }
 
             System.out.println("Finished simple query");
-            for (String key : usersList.keySet()){
-                System.out.println("key " + key + "serial" + usersList.get(key));
-            }
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             System.exit(-1);
@@ -139,43 +166,3 @@ public class SQLDataBase {
 
 
 }
-
-
-//    public static void queryDataWithJoin(String uos) {
-//        String enrolmentSQL =
-//                """
-//                SELECT first_name, last_name
-//                FROM students AS s
-//                INNER JOIN student_units AS su ON s.id = su.student_id
-//                INNER JOIN units as u ON su.unit_id = u.id
-//                WHERE u.code = ?
-//                """;
-//
-//        try (Connection conn = DriverManager.getConnection(dbURL);
-//             PreparedStatement preparedStatement = conn.prepareStatement(enrolmentSQL)) {
-//            preparedStatement.setString(1, uos);
-//            ResultSet results = preparedStatement.executeQuery();
-//
-//            while (results.next()) {
-//                System.out.println(
-//                        results.getString("first_name") + " " +
-//                                results.getString("last_name"));
-//            }
-//
-//            System.out.println("Finished join query");
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//            System.exit(-1);
-//        }
-//    }
-
-//    public static void main(String[] args) {
-//        removeDB();
-//        createDB();
-//        setupDB();
-//        addStartingData();
-//        addDataFromQuestionableSource("2", "none", "1,2,3,4");
-//        //queryDataSimple(65.0, 75.0);
-//        //queryDataWithJoin("SOFT3202");
-//    }
-//}

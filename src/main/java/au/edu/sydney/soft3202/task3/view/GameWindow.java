@@ -1,6 +1,7 @@
 package au.edu.sydney.soft3202.task3.view;
 
 import au.edu.sydney.soft3202.task3.model.GameBoard;
+import au.edu.sydney.soft3202.task3.model.SQLDataBase;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -107,9 +108,13 @@ public class GameWindow {
         // for the validation aspects to be separated from the operation itself.
 
         if (null == model.getCurrentTurn()) { // no current game
+            SQLDataBase.removeDB();
+            SQLDataBase.createDB();
+            SQLDataBase.setupDB();
             doNewGame();
             return;
         }
+
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("New Game Warning");
@@ -142,11 +147,11 @@ public class GameWindow {
         textInput.setHeaderText("Set your game name");
         Optional<String> input = textInput.showAndWait();
         if (input.isPresent()) {
-            String user = input.get();
+            String gameName = input.get();
 
             try {
                 String serialisation = model.serialise();
-                addDataFromQuestionableSource(user, serialisation);
+                addDataSavedGame(gameName, serialisation);
 
             } catch (IllegalArgumentException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -197,7 +202,17 @@ public class GameWindow {
         // because we know the model will mutate as a result of our call to it.
         // Generally speaking the observer pattern is superior - I would recommend using it instead of
         // doing it this way.
+        TextInputDialog textInput = new TextInputDialog();
+        textInput.setTitle("Enter user name");
+        textInput.setHeaderText("Set your game name");
+        Optional<String> input = textInput.showAndWait();
+        if (input.isPresent()) {
+            String user = input.get();
+            SQLDataBase chess = new SQLDataBase();
 
+            addDataUserName(user);
+
+        }
         model.newGame();
         boardPane.updateBoard();
     }
