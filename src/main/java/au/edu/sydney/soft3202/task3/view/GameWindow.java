@@ -9,6 +9,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
+import java.sql.*;
 import java.util.*;
 
 import static au.edu.sydney.soft3202.task3.model.SQLDataBase.*;
@@ -151,7 +152,11 @@ public class GameWindow {
 
             try {
                 String serialisation = model.serialise();
-                addDataSavedGame(gameName, serialisation);
+                if(checkExist(gameName) == savedGameId) {
+                    addDataSavedGame(gameName, serialisation);
+                } else {
+                    System.out.println("This name already exist");
+                };
 
             } catch (IllegalArgumentException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -162,6 +167,36 @@ public class GameWindow {
                 return;
             }
         }
+    }
+
+    private int checkExist(String name) {
+        Map<String, Integer> usersList = new HashMap<String, Integer>();
+        String resultString =
+                """
+                SELECT *
+                FROM saved_games
+                WHERE user_id = (?)
+                """;
+
+        try (Connection conn = DriverManager.getConnection(dbURL);
+             PreparedStatement preparedStatement = conn.prepareStatement(resultString)) {
+            preparedStatement.setInt(1, userNameId);
+            ResultSet results = preparedStatement.executeQuery();
+            int i = 0;
+            while (results.next()) {
+                usersList.put(results.getString("name"),results.getInt("id"));
+            }
+
+            System.out.println("Finished simple query");
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            System.exit(-1);
+        }
+
+        int id = usersList.containsKey(name)?  usersList.get(name) : savedGameId;
+        System.out.println("id =" + id + " exist? " + usersList.containsKey(name));
+        return id;
     }
 
     private void deserialiseAction() {

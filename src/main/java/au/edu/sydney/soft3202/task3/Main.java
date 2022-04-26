@@ -17,13 +17,6 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setScene(view.getScene());
-
-
-       //chess.addStartingData();
-//        addDataFromQuestionableSource("2", "none", "1,2,3,4");
-      //  chess.createDB();
-    //    SQLDataBase.setupDB();
-       // SQLDataBase.addStartingData();
         primaryStage.setTitle("Checkers");
         primaryStage.show();
     }

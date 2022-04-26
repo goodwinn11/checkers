@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class SQLDataBase {
     private static final String dbName = "checkers.db";
-    private static final String dbURL = "jdbc:sqlite:" + dbName;
+    public static final String dbURL = "jdbc:sqlite:" + dbName;
     public static int savedGameId = 0;
     public static int userNameId = 0;
 
@@ -111,7 +111,7 @@ public class SQLDataBase {
             preparedStatement.executeUpdate();
 
 
-            System.out.println("Added questionable data");
+            System.out.println("Added questionable data" + " savedGameId=" + savedGameId);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             System.exit(-1);
