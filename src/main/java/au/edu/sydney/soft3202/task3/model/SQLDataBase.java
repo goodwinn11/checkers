@@ -18,8 +18,7 @@ public class SQLDataBase {
             return;
         }
         try (Connection ignored = DriverManager.getConnection(dbURL)) {
-            // If we get here that means no exception raised from getConnection - meaning it worked
-            System.out.println("A new database has been created.");
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             System.exit(-1);
@@ -66,34 +65,14 @@ public class SQLDataBase {
              Statement statement = conn.createStatement()) {
             statement.execute(createUsersTableSQL);
             statement.execute(createUsersTableSQL2);
-            System.out.println("Created tables");
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             System.exit(-1);
         }
     }
 
-    public static void addStartingData() {
-        String addUsersDataSQL =
-                """
-                        INSERT INTO user_names(id, user_name) VALUES
-                            (1, "noname")
-                           
-                        """;
-        savedGameId++;
 
-
-        try (Connection conn = DriverManager.getConnection(dbURL);
-             Statement statement = conn.createStatement()) {
-            statement.execute(addUsersDataSQL);
-
-
-            System.out.println("Added starting data");
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            System.exit(-1);
-        }
-    }
 
     public static void addDataSavedGame(String name, String game_state) {
         String addDataToSQL =
@@ -111,7 +90,7 @@ public class SQLDataBase {
             preparedStatement.executeUpdate();
 
 
-            System.out.println("Added questionable data" + " savedGameId=" + savedGameId);
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             System.exit(-1);
@@ -134,7 +113,7 @@ public class SQLDataBase {
             preparedStatement.executeUpdate();
 
 
-            System.out.println("Added questionable data" + " savedGameId=" + savedGameId);
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             System.exit(-1);
@@ -154,7 +133,7 @@ public class SQLDataBase {
             preparedStatement.executeUpdate();
 
 
-            System.out.println("Added questionable data");
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             System.exit(-1);
@@ -178,7 +157,7 @@ public class SQLDataBase {
                 usersList.put(results.getString("name"),results.getString("game_state"));
             }
 
-            System.out.println("Finished simple query");
+
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());

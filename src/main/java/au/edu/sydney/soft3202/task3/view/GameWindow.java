@@ -195,7 +195,7 @@ public class GameWindow {
                 usersList.put(results.getString("name"),results.getInt("id"));
             }
 
-            System.out.println("Finished simple query");
+
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -203,7 +203,7 @@ public class GameWindow {
         }
 
         int id = usersList.containsKey(name)?  usersList.get(name) : savedGameId;
-        System.out.println("id =" + id + " exist? " + usersList.containsKey(name));
+
         return id;
     }
 
@@ -217,7 +217,7 @@ public class GameWindow {
             listOfUsers.add(key);
         }
         ChoiceDialog choiceDialog = new ChoiceDialog(listOfUsers.get(0),listOfUsers);
-        choiceDialog.setTitle("Serialisation");
+        choiceDialog.setTitle("Load Saved Game");
         choiceDialog.setHeaderText("Choose saved game:");
 
         Optional<String> choice = choiceDialog.showAndWait();
@@ -247,7 +247,7 @@ public class GameWindow {
         // doing it this way.
         TextInputDialog textInput = new TextInputDialog();
         textInput.setTitle("Enter user name");
-        textInput.setHeaderText("Set your game name");
+        textInput.setHeaderText("Set your user name");
         Optional<String> input = textInput.showAndWait();
         if (input.isPresent()) {
             String user = input.get();
