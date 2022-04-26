@@ -117,6 +117,29 @@ public class SQLDataBase {
             System.exit(-1);
         }
     }
+    public static void rewriteSavedGame(int id, String name, String game_state) {
+        String addDataToSQL =
+                """
+                        UPDATE saved_games SET id = ?, name = ?, game_state = ?, user_id = ? 
+                        WHERE id = ?
+                        """;
+
+        try (Connection conn = DriverManager.getConnection(dbURL);
+             PreparedStatement preparedStatement = conn.prepareStatement(addDataToSQL)) {
+            preparedStatement.setInt(1, id);
+            preparedStatement.setString(2, name);
+            preparedStatement.setString(3, game_state);
+            preparedStatement.setInt(4, userNameId);
+            preparedStatement.setInt(5, id);
+            preparedStatement.executeUpdate();
+
+
+            System.out.println("Added questionable data" + " savedGameId=" + savedGameId);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            System.exit(-1);
+        }
+    }
     public static void addDataUserName(String name) {
         String addDataToSQL =
                 """
