@@ -158,7 +158,7 @@ public class GameWindow {
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setTitle("Game name already exists");
                     alert.setHeaderText("Game name already exists");
-                    alert.setContentText("Are you ok with this?");
+                    alert.setContentText("Save name exists, are you sure you want to overwrite?");
 
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.isPresent() && result.get() == ButtonType.OK){
